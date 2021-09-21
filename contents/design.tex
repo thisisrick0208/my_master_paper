@@ -1,0 +1,124 @@
+% !TEX root = ../main.tex
+
+\chapter{架构与模块设计}
+
+\section{总体架构设计}
+
+从图<Figure 1>中可以看到这是经典的图像传感器与ISP(Image Sensor Processor)以及其他
+功能部件连接在一条高速数据总线的结构。总体架构可以分为几个部分：数据通路部分、系统控制部分和高速数据总线。
+数据通路部分包含了IDA(Input Data Adapter)、深度学习神经网络加速模块、TX输出模块。
+系统控制部分包含了CPU、DMA、Memory、SPI Flash以及其他外设模块（比如I2C和UART等接口模块）。
+%TODO 架构图展示
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=15cm,height=4.5cm]{figures/bnn.png}
+    \caption{总体架构图}
+    \label{1}
+\end{figure}
+%TODO 各个模块的简述
+在设计和建模过程中，假设从ISP输出的数据为我们人体肉眼可见的视频数据流。为了减少建模过程中的非相关设计，这里
+的视频数据流假设为RGB888的格式。
+
+\section{CIS数据通路}
+%TODO 展示Stream datapath的传输方式 sof eof href
+%TODO DL accelerator在数据通路中的作用
+%TODO Fix Timing模块做数据同步，最后输出结果
+CIS芯片的作用，就是将图像传感器接收到的信号，转为数字信号后传输给后端。一般来说，我们把CIS
+芯片上的设计逻辑称为数据通路。图像数据通路一般由输入、数据处理和输出三个部分组成。通常地，这三个部分也具有各自不同的时钟域。
+在输入时钟域中，RX模块接收从CMOS传感器输出的数据。由IDA模块的缓冲区暂存数据后向后一个时钟域输出同步数据。
+在数据处理的时钟域中，深度学习运算模块将进行推理操作。
+在输出时钟域中，FT(fix timing)模块将调整输出的时钟频率.TX模块负责以指定格式输出图像数据。  
+
+\subsection{数据流的输入}
+%TODO 
+%   数据流的输入将由IDA(Input Data Adapter)模块处理。这个模块的主要作用是将Sensor输出的数据放到一个缓存区。
+%   并将视频数据流的plck同步到数据流的时钟域。
+
+这里假设从图像传感器输出的图像数据为224x224像素尺寸的图像。
+视频数据流的输入需要参考流式设备的特性，合理的缓存大小和同步的时机是关键点。
+对于卷积运算，缓存的行数大小应该大于等于卷积核的行数和列数之间的较大值。
+例如，卷积核的尺寸为3x3时，缓存至少要保存3行数据。
+如果，每帧图像的尺寸为224x224个像素点。
+由RGB三个通道组成的每一帧都拆分成三个224x224x8比特。
+那么需要给一个通道的一帧数据缓存的大小需要大于等于672个字节。
+
+
+\section{深度学习神经网络运算单元}
+
+\subsection{影响因子和依据}
+在开始设计深度学习神经网络的运算模块之前，本章节将提出一些影响设计的因素，并描述如何将这些因素考虑在内来帮助我们完成设计。
+其中精准度、吞吐量、延迟、能效比和功耗，都是衡量深度学习神经网络运算的硬件单元的最重要因素。
+% TODO 精确度 吞吐量和延迟 能效比和功耗
+精准度是这类问题中最常见的一个指标。对于图像分类问题，精度报告为正确分类图像的百分比，而对于目标检测问题，精度报告为平均精度。
+影响准确性的因素包括任务的难度和数据集。因此，这个数据在建模的过程中将被用来验证设计的正确性。
+吞吐量以及延迟
+
+
+
+\subsection{基于脉动阵列的深度残差网络}
+本文中将基于脉动阵列来实现深度残差网络。
+
+%TODO ResNet18的Basic Block
+%TODO x -> conv3x3 -> BN -> Relu -> conv3x3 -> BN ( + 入口的x)-> out -> Relu -> out
+%TODO x -> conv7x7,stride=3,padding=3 -> BN -> 
+
+
+
+%TODO 脉动阵列实现矩阵乘法的CMODEL
+脉动阵列是1978年KUNG H T提出的一种应用在片上多处理器的体系结构。它是由多个相同的、结构简单的计算单元
+以网状形式连接而成的，具有并行性、规律性和局部通信的特征。在深度残差网络ResNet18中，由5个卷积层组成，
+除了第一个卷积层外，后4个卷积层都是由2个基础块组成。基础块的结构如下图x所示。其中的批量标准化和Relu函
+数都可以设计专用的运算模块，而3x3的卷积运算可以通过脉动阵列来运算。
+
+
+%REF KUNG H T, Leiserson C E. Systolic arrays(for VLSI)[C]. Sparse Matrix Proceedings 1978, Society for Industrial and Applied Mathematics, 1979.
+
+脉动阵列的设计和C模型实现，可以分为两个部分：脉动阵列模块的顶层设计和处理单元的设计。
+处理单元(PE)的寄存器：时钟、重置、同步清零、输入参数A、输入参数B、输出给下一级的A、输出给下一级的
+B、输出P值。
+
+\begin{table}[!hpt]
+    \bicaption[PE的寄存器表]{PE的寄存器表}{Register Table Of PE}
+    \label{tab:firstone}
+    \centering
+    \begin{tabular}{@{}lllr@{}} \toprule
+        Type & Name & Description & Size \\ \midrule
+        input  & CLK  & 输入PE模块的时钟信号 & 32b \\
+        input  & RST  & 模块重置寄存器 & 16b \\
+        input   & SCLR   & 同步清零寄存器 & 16b \\
+        input   & A   & 输入参数A & 8b \\
+        input   & B   & 输入参数B & 8b \\
+        output   & Next\_A   & 输出到下一个PE的A & 8b \\
+        output   & Next\_B   & 输出到下一个PE的B & 8b \\
+        output & P & PE的运算结果P & 16b \\ \bottomrule
+    \end{tabular}
+  \end{table}
+
+  
+
+% \begin{table}[!hpt]
+%     \caption[PE的寄存器表]{PE的寄存器表}{Register Table Of PE}
+%     \label{tab:firstone}
+%     \centering
+%     \begin{tabular}Type & Name & Description & Size \\  \toprule
+%       input & CLK  & 输入PE模块的时钟信号 & 32b \\ \midrule
+%       input & RST  & 模块重置寄存器 & 16b \\
+%       input & SCLR & 同步清零寄存器 & 16b \\
+%       input & A & 输入参数A & 8b \\
+%       input & B & 输入参数B & 8b \\
+%       output & Next_A & 输出到下一个PE的A & 8b \\
+%       output & Next_B & 输出到下一个PE的B & 8b \\
+%       output & P & PE的运算结果P & 16b \\ \bottomrule
+%     \end{tabular}
+% \end{table}  
+
+
+
+\section{存储}
+%TODO 关于存储Multiple Bank的设计（状态机）
+本设计中，专门对存储进行了优化，区分开了不同的RAM区域来存储不用的数据，主要由以下几个区域：存储输入和输出数据的
+INRAM和OUTRAM、存储网络数据的NRAM、存储权重的WRAM、存储系统数据的SRAM以及存储临时数据的TRAM。拆分存储的设计
+主要有以下两大好处：读写的带宽和避免冲突。
+拆分存储之后，SRAM可以被调整为适当的读写宽度。假设输入和输出的宽度是$X_a \times K$字节,存储网络和权重数据的
+NRAM和WRAM为$X_a \times X_a \times K$字节。如果是用CPU或GPU，且未做优化的情况下，处理器只能按照固定宽度读取
+数据。
