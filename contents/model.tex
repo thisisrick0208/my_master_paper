@@ -20,7 +20,6 @@ Matlab或者Python模型，作为模块开发者和芯片模型的参考依据�
 
 
 \subsection{数据的输入}
-
 需要设计相应的模块处理输入的图像数据，使得神经网络计算模块可以进行计算。
 %TODO 描述DVP并口传输input的数据
 %DRAFT 设计有下列端口
@@ -35,7 +34,79 @@ Matlab或者Python模型，作为模块开发者和芯片模型的参考依据�
 %       buffer      5行buffer
 
 
+\subsection{数据的运算}  
 
+\subsubsection{脉动阵列的仿真}
+% TODO 首先实现脉动和PE
+定义处理单元和实现脉动的行为。
+\begin{codeblock}[language=C]
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
+#define N 256
+using namespace std;
+
+typedef struct PE{
+    int weight;
+    int neuron;
+    int psum;
+};
+
+class Systolic{
+public:
+    PE S[N][N];
+public:
+    void Init(){
+        for(int i=0;i<N;i++)
+            for(int j=0;j<N;j++){
+                S[i][j].psum=0;
+                S[i][j].weight=0;
+                S[i][j].neuron=0;
+            }
+    }
+    void calc(){
+        for(int i=0;i<N;i++)
+            for(int j=0;j<N;j++)
+                S[i][j].psum+=S[i][j].weight*S[i][j].neuron;
+    }
+    void shift(int a[N],int b[N]){
+        //水平方向传播矩阵A,a[N]是本次要被读入的列(left->right)
+        for(int i=0;i<N;i++)
+            for(int j=N-1;j>0;j--){
+                S[i][j].neuron=S[i][j-1].neuron;
+        }
+        for(int i=0;i<N;i++)
+            S[i][0].neuron=a[i];
+        //竖直方向上传播矩阵B,b[N]是本次要被读入的行(up->bottom)
+        for(int j=0;j<N;j++)
+            for(int i=N-1;i>0;i--){
+                S[i][j].weight=S[i-1][j].weight;
+        }
+        for(int j=0;j<N;j++)
+            S[0][j].weight=b[j];
+    }
+    void Display(){
+        cout<<"weight:"<<endl;
+        for(int i=0;i<N;i++){
+            for(int j=0;j<N;j++)
+                cout<<fixed<<setw(4)<<S[i][j].weight<<",";
+            cout<<endl;
+        }
+        cout<<"neuron:"<<endl;
+        for(int i=0;i<N;i++){
+            for(int j=0;j<N;j++)
+                cout<<fixed<<setw(4)<<S[i][j].neuron<<",";
+            cout<<endl;
+        }
+    }
+};
+
+\end{codeblock}
+
+
+
+% 以下是原来的内容
 
 
 \begin{figure}[!htp]
