@@ -1,0 +1,40 @@
+% !TEX root = ../main.tex
+
+\chapter{结果与报告}
+
+\section{测试用例}
+
+\subsection{算法的可行性}
+
+
+
+\subsection{空间占用和并行性}
+
+
+
+\section{报告}
+
+按照教务处的要求，参考文献外观应符合国标 GB/T 7714 的要求。模版使用 \BibLaTeX\
+配合 \pkg{biblatex-gb7714-2015} 样式包
+\footnote{\url{https://www.ctan.org/pkg/biblatex-gb7714-2015}}
+控制参考文献的输出样式，后端采用 \pkg{biber} 管理文献。
+
+请注意 \pkg{biblatex-gb7714-2015} 宏包 2016 年 9 月才加入 CTAN，如果你使用的
+\TeX\ 系统版本较旧，可能没有包含 \pkg{biblatex-gb7714-2015} 宏包，需要手动安装。
+\BibLaTeX\ 与 \pkg{biblatex-gb7714-2015} 目前在活跃地更新，为避免一些兼容性问
+题，推荐使用较新的版本。
+
+正文中引用参考文献时，使用 \verb|\cite{key1,key2,key3...}| 可以产生“上标引用的
+参考文献”，如 \cite{Meta_CN,chen2007act,DPMG}。使用
+\verb|\parencite{key1,key2,key3...}| 则可以产生水平引用的参考文献，例如
+\parencite{JohnD,zhubajie,IEEE-1363}。请看下面的例子，将会穿插使用水平的和上标的
+参考文献：关于书的\parencite{Meta_CN,JohnD,IEEE-1363}，关于期刊的
+\cite{chen2007act,chen2007ewi}，会议论文 \parencite{DPMG,kocher99,cnproceed}，硕
+士学位论文\parencite{zhubajie,metamori2004}，博士学位论文
+\cite{shaheshang,FistSystem01,bai2008}，标准文件 \parencite{IEEE-1363}，技术报告
+\cite{NPB2}，电子文献 \parencite{xiaoyu2001, CHRISTINE1998}，用户手册
+\parencite{RManual}。
+
+可以使用 \verb|\nocite{key1,key2,key3...}| 将参考文献条目加入到文献表中但不在正
+文中引用。使用 \verb|\nocite{*}| 可以将参考文献数据库中的所有条目加入到文献表
+中。
