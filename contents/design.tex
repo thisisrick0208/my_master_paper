@@ -177,7 +177,7 @@ CIS的顶层架构设计是由CPU、高速总线、存储以及数据通路上�
     \label{fig:input_data_adapter}
 \end{figure}
 
-上图\ref{fig:input_data_adapter}是数据输入同步单元与深度学习加速器之间的连线设计。
+如图\ref{fig:input_data_adapter}是数据输入同步单元与深度学习加速器之间的连线设计。
 hsync用于行同步信号。
 vsync用于帧同步信号。
 pclk是像素时钟信号。
@@ -220,8 +220,13 @@ SCL和SDA是用来读写模块寄存器的I2C接口的时钟信号和数据信�
     \item 运行状态：在特征图和权值都载入到相应的缓冲区后，控制模块将驱动脉动阵列或者是相应的算数逻辑运算单元开始工作。这个运算模块工作的状态称为运行状态。
 \end{enumerate}  
 %TODO 这里增加一个状态机的图 在草稿纸上。
-
-
+如图\ref{fig:resnet18_arch}是ResNet18的网络结构图。
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=12cm,height=5cm]{figures/resnet18_arch.png}
+    \caption{ResNet18网络结构图}
+    \label{fig:resnet18_arch}
+\end{figure}
 
 \subsubsection{边框填充(padding)和数据输入}
 对于边框填充，如果直接对输入数据进行修改，将会需要很大的存储来缓存数据，并且不排除会有很多读写的操作影响整个运算的效率。
@@ -291,16 +296,22 @@ B、输出P值。
 归一化(normalization)可以理解为让每个特征图都有均值为0，方差为1的分布。
 而批归一化(batch normalization)是为了简化完整的归一化的训练。
 完整的归一化训练的时间复杂度和空间复杂度都很高，因此它对内存的要求较大，且训练的时间很长。
-#step1: 计算均值
-#step2: 减均值 
-#step3: 计算方差
-#step4: 计算x^的分母项
-#step5: normalization->x^
-#step6: scale and shift
+step1: 计算均值
+step2: 减均值 
+step3: 计算方差
+step4: 计算$x^i$的分母项
+step5: normalization->$x^i$
+step6: scale and shift
+
+\paragraph{下采样和直接映射}
 
 \paragraph{全连接}
 
 \paragraph{Relu函数}
+
+\paragraph{池化}
+池化层通过对特征图中输入神经元的非重叠窗口（即池化窗口，每个窗口具有$K_x$×$K_y$个神经元）执行最大或平均运算，直接对输入特征图进行下采样。
+
 
 %TODO 关于存储Multiple Bank的设计（状态机）
 % 11/24 这一段需要重写，可能会搬到上面的某一段
