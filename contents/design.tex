@@ -296,14 +296,45 @@ B、输出P值。
 归一化(normalization)可以理解为让每个特征图都有均值为0，方差为1的分布。
 而批归一化(batch normalization)是为了简化完整的归一化的训练。
 完整的归一化训练的时间复杂度和空间复杂度都很高，因此它对内存的要求较大，且训练的时间很长。
-step1: 计算均值
-step2: 减均值 
-step3: 计算方差
-step4: 计算$x^i$的分母项
-step5: normalization->$x^i$
-step6: scale and shift
+模块的输入参数有：特征图、形状的缩放系数$\gamma$、形状的位移系数$\beta$、数值稳定性常数$eps$、均值、方差
+
+下面将展开说明批归一化的具体运算逻辑。
+\subparagraph{计算均值和方差}
+在训练模型时，需要计算得出mini-batch $B$的均值和方差，并记录下来。
+在推理时，需要使用训练所得的均值和方差。  
+均值的计算公式：
+$$ \mu_{B} = \frac{1}{m} \sum_{i=1}^{m}x_{i} $$  
+
+方差的计算公式：
+$$ \sigma_{B}^{2} = \frac{1}{m} \sum_{i=1}^{m}(x_{i} - \mu_{B})^2  $$
+
+\subparagraph{归一化}
+在训练时，对mini-batch中的每一个特征$x_i$进行归一化处理
+归一化的公式：
+$$
+        \hat{x}_{i} = \frac{ x_{i} - \mu_{B} }{ \sqrt{\sigma_{B}^{2}+\epsilon}}
+$$
+
+\subparagraph{推理inference}
+该模块在运行时，只会进行推理(inference)。
+在推理时，模块会使用到训练好的模型中的均值和方差的无偏估计量来进行批归一化，也就是：
+$$ E(x) = E_{B}(\mu_{B}) $$    
+
+$$ Var(x) = \frac{m}{m-1}E_{B}(\sigma_{B}^{2})  $$    
+
+输出的特征图可以表示为：
+$$ y = \frac{\gamma x}{\sqrt{Var(x) + \epsilon}} + ( \beta - \frac{\gamma E(x)}{\sqrt{Var(x) + \epsilon}} )  $$
+
+因此，可以通过下面的伪代码来表述模块的运算逻辑：
+\begin{codeblock}[language=python]
+    scale = gamma / np.sqrt(var + eps)
+    out = x * scale + (beta - mean * scale)
+\end{codeblock}
+先根据输入的参数算出缩放系数。
+再使用缩放系数和位移系数处理特征图。
 
 \paragraph{下采样和直接映射}
+在ResNet的Basic Block中，需要使用下采样或者直接映射后，才能输出特征图到下一层。
 
 \paragraph{全连接}
 
