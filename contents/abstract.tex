@@ -1,21 +1,21 @@
 % !TEX root = ../main.tex
 
 \begin{abstract}
-  本文内容是一种在CMOS图像传感器(CIS)的片内进行深度学习图像推理运算的专用SoC的建模和仿效。
+  本文内容是一种在CMOS图像传感器(CIS)的片内进行深度学习图像推理运算的专用SoC的设计和建模。
   这种在CIS芯片片内进行深度学习神经网络推理的方案与传统的CPU、GPU等通用GPP对CSI-TX接口输出的视频流进行推理的做法相比，在存储性能和计算性能上具有优势。
-  与业内常见的专用深度学习加速芯片相比，在CIS片内的设计能够带来带宽上的优势，同时也可以利用片内数据通路的流水线特性，设计专用的并行算法来提高运算速度。
-  另外一方面，随着当今集成电路领域的发展，芯片设计的规模变得越来越庞大。
-  电路的性能已经得到极大的提高，单个芯片上的晶体管数达亿级甚至十亿级，使得更多的模块能够集成到一个芯片上。
-  但随着集成电路的规模变大，设计和验证的工作也变得更加繁重。
+  与业内常见的专用深度学习加速芯片相比，在CIS片内的设计能够带来带宽上的优势，同时也可以利用片内数据通路的流水线特性，设计专用的脉动阵列来提高运算速度。
+  同时，本文还基于SystemC语言进行建模。
+  该C模型充分描述了芯片的顶层逻辑行为，并且实现了深度学习加速器的核心算法。
   为了提高项目的质量，提早验证系统和算法的设计，对芯片进行系统级和算法级建模和验证变得非常重要。这也是本文中工作的意义所在。
 
 
 \end{abstract}
 
 \begin{abstract*}
-  The content of this paper is the modeling and imitation of a special SOC for deep learning image reasoning operation in the chip of CMOS image sensor (CIS).
-  This scheme of deep learning neural network reasoning in cis chip has advantages in storage performance and computing performance compared with the traditional method of reasoning the video stream output by csi-tx interface by general GPPS such as CPU and GPU. Compared with the common dedicated deep learning acceleration chip in the industry, the design in cis chip can bring the advantage of bandwidth. At the same time, it can also use the pipeline characteristics of on-chip data path to design a dedicated parallel algorithm to improve the operation speed.  
-
-  On the other hand, with the development of today's integrated circuit field, the scale of chip design becomes larger and larger. The performance of the circuit has been greatly improved. The number of transistors on a single chip has reached hundreds of millions or even billions, so that more modules can be integrated into one chip.
-  However, as the scale of integrated circuits becomes larger, the work of design and verification becomes more and more arduous. In order to improve the quality of the project and verify the design of system and algorithm in advance, it is very important to model and verify the chip at system level and algorithm level. This is also the significance of the work in this paper.
+The content of this paper is the design and modeling of a special SOC for deep learning image reasoning in the chip of CMOS image sensor (CIS).
+This scheme of deep learning neural network reasoning in cis chip has advantages in storage performance and computing performance compared with the traditional method of reasoning the video stream output by csi-tx interface by general GPPS such as CPU and GPU.
+Compared with the common dedicated deep learning acceleration chip in the industry, the design in cis chip can bring the advantage of bandwidth. At the same time, it can also use the pipeline characteristics of on-chip data path to design a dedicated pulsating array to improve the operation speed.
+At the same time, this paper also models based on SystemC language.
+The C model fully describes the top-level logic behavior of the chip, and implements the core algorithm of the deep learning accelerator.
+In order to improve the quality of the project and verify the design of system and algorithm in advance, it is very important to model and verify the chip at system level and algorithm level. This is also the significance of the work in this paper.
 \end{abstract*}

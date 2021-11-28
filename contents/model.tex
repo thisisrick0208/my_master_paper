@@ -1,226 +1,745 @@
 % !TeX root = ../main.tex
 
 \chapter{建模与验证}
-
-% TODO 解释C模型在ASIC设计中的作用                                          
-据统计，全世界有67\%以上的ASIC项目都是拖期交付的，其中有些项目会拖期半年以上，从这个数据可以想象得到，通向一款ASIC芯片的道路会有多么曲折。
-ASIC芯片的特点与简单指令集的CPU完全相反，它被设计出来的目的就是为了实现复杂功能。
-因此，ASIC芯片的设计过程异常繁琐。
-一般的，芯片公司会在项目初始时，完成市场需求设计和产品需求设计。
-在需求被明确之后，系统工程师就会开始进行架构设计。
-这个过程包含了提出顶层架构设计和定义需求中所有用例涉及到的子模块。
-并且，定义各个子模块之间的连接关系、交互方式和时序要求。
-在完成芯片的架构设计之后，需要对芯片进行建模。芯片建模是用一种高级语言对芯片的行为进行描述。
-一般会采用C/C++或者SystemC来实现建模。
-如果涉及到新的算法模块，会要求算法工程师先做出算法的Matlab或者C模型，作为模块开发者和芯片模型的参考依据。
-
-\section{顶层架构}
-在章节2.1中，本文已经简述了总体的架构设计。本章节将详细说明顶层架构的C模型。
+                                      
+这一章节将通过高级语言实现和验证在第二章中所描述的芯片上的各个功能部件。
+同时，也对上一章的模块和算法设计做出了更加细节的描述。
+通过建模来得到一些仿效结果，来验证本课题中提出的各项设计的正确性。
 
 
-\section{数据的输入}
-需要设计相应的模块处理输入的图像数据，使得神经网络计算模块可以进行计算。
+\section{深度学习加速器}
+在章节2.2中，已经简述了芯片的总体架构设计。本章节将详细阐述顶层架构的高级语言模型。
+顶层逻辑包括了驱动图像数据信号按照一定的频率输入到深度学习加速器模块中。
+以及在深度学习运算加速器运算完后输出图像数据信号。
+
+
+\subsection{顶层逻辑的定义}
+基于systemc实现的顶层逻辑中，将实例化在章节2中设计的各个模块，定义模块间的信号。
+同时，顶层逻辑将绑定各个模块之间的接口和信号。
+最后，顶层逻辑将初始化仿真。
+在本课题中，顶层逻辑将产生一个系统时钟信号，而图像数据将在数据输入同步单元中直接产生。
+
+\begin{codeblock}[language=c++]
+#include “systemc.h”
+#include "systolic_top.h"
+#include "img_gen.h"
+
+int sc_main(int, char *[])
+{
+  //Signals
+  sc_signal<bool> src_pclk;
+  sc_signal<bool> src_vsync;
+  sc_signal<bool> src_hsync;
+  sc_signal<sc_uint<11>> src_data;
+
+  //Clock
+  sc_signal<bool> clk;
+
+  //Instance of 'img\_{}gen' module
+  img_gen I("img_gen");
+  //Positional port binding
+  I(src_pclk, src_vsync, src_hsync, src_data, clk);
+
+  //Instance of 'dl\_{}acc' module
+  systolic_top S("systolic_top");
+  //Named port binding
+  S.pclk(src_pclk);
+  S.vsync(src_vsync);
+  S.hsync(src_hsync);
+  S.data(src_data);
+
+  //Initialize simulation
+  sc_start(0, SC_NS);
+  for(int i = 0; i < 224*224*3*8; i++){
+    clk.write(1);
+    sc_start(10, SC_NS);
+    clk.write(0);
+    sc_start(10, SC_NS);
+  }
+
+  return 0;
+}
+
+\end{codeblock}
+
+\subsection{数据的输入}
+数据的输入是频率24Mhz的RGB888图像数据信号。
+数据输入同步单元有三个子模块，图像数据同步缓冲、模块控制器和DVP接口。
+这个模块可以给图像数据管道输入用于验证的数据。
+
+常见的CIS接口有MIPI和DVP。由于MIPI接口对PCB走线和阻抗控制的要求比较高，且我们的接口是为了给片内的深度学习加速器使用。
+因此，这里设计的接口为DVP接口。
+DVP接口具有以下几个端口用于传输控制信号和数据，见表\ref{tab:port_of_dvp}：
+\begin{table}[!hpt]
+  \bicaption[DVP协议的端口]{DVP协议的端口}{port of DVP}
+  \label{tab:port_of_dvp}
+  \centering
+  \begin{tabular}{@{}ll@{}} \toprule
+    端口名称  & 描述  \\
+    PCLK    & 像素的同步时钟信号  \\
+    VSYNC   & 帧同步信号         \\
+    HSYNC   & 行同步信号         \\
+    DATA[0:11]&8位数据信号        \\
+
+  \end{tabular}
+\end{table}
+
+下面是基于systemc定义了dvp接口
+
+\begin{codeblock}[language=c++]
+#include "systemc.h"
+
+struct img_gen : sc_module{
+  sc_out<bool>PCLK,VSYNC,HSYNC;
+  sc_out<sc_uint<11>> DATA;
+  sc_in<bool> XCLK;
+
+  void stream_on(void);
+  
+  SC_CTOR(img_gen){
+  SC_METHOD(stream_on):
+    dont_initialize();
+    sensitive << XCLK.pos();
+  }
+}
+
+\end{codeblock}
+
 %TODO 描述DVP并口传输input的数据
 %DRAFT 设计有下列端口
 %       PCLK        像素点同步时钟信号
 %       XCLK        外部输入时钟信号
 %       VSYNC       帧同步信号
 %       HSYNC       行同步信号
-%       Data[0:11]  数据信号12bit
+%       Data[0:11]  数据信号8bit
+
+
 
 
 %TODO 设计Input Data Adapter
 %       buffer      5行buffer
 
 
-\section{数据的运算}  
+\subsection{基于脉动阵列的ResNet18}  
+深度学习运算加速器由多个子模块组成。
+除了整个模块的控制单元，这些子模块分别是：数据缓冲区、权值缓冲、脉动数据设置、脉动阵列、累加器、算数逻辑单元。
 
 
-% ResNet18 代码实现，转移到第三章
-\begin{codeblock}[language=python]
-    class BasicBlock(nn.Module):
-        expansion: int = 1
-    
-        def __init__(
-            self,
-            inplanes: int,
-            planes: int,
-            stride: int = 1,
-            downsample: Optional[nn.Module] = None,
-            groups: int = 1,
-            base_width: int = 64,
-            dilation: int = 1,
-            norm_layer: Optional[Callable[..., nn.Module]] = None,
-        ):
-            super().__init__()
-            if norm_layer is None:
-                norm_layer = nn.BatchNorm2d
-            if groups != 1 or base_width != 64:
-                raise ValueError("BasicBlock only supports groups=1 and base_width=64")
-            if dilation > 1:
-                raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
-            # Both self.conv1 and self.downsample layers downsample the input when stride != 1
-            self.conv1 = conv3x3(inplanes, planes, stride)
-            self.bn1 = norm_layer(planes)
-            self.relu = nn.ReLU(inplace=True)
-            self.conv2 = conv3x3(planes, planes)
-            self.bn2 = norm_layer(planes)
-            self.downsample = downsample
-            self.stride = stride
-    
-        def forward(self, x: Tensor):
-            identity = x
-    
-            out = self.conv1(x)
-            out = self.bn1(out)
-            out = self.relu(out)
-    
-            out = self.conv2(out)
-            out = self.bn2(out)
-    
-            if self.downsample is not None:
-                identity = self.downsample(x)
-    
-            out += identity
-            out = self.relu(out)
-    
-            return out
-    
-    \end{codeblock}
-    
-    
-    
-    下面使用pytorch来实现resnet18，以此来观察各个层之间的数据流。
-    \begin{codeblock}[language=python]
-    class ResNet18(nn.Module):
-        def __init__(self, block, layers, num_classes=1000):
-            self.inplanes = 64
-            super(ResNet, self).__init__()
-            self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
-                                   bias=False)
-            self.bn1 = nn.BatchNorm2d(64)
-            self.relu = nn.ReLU(inplace=True)
-            self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-            self.layer1 = self._make_layer(block, 64, layers[0])
-            self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
-            self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
-            self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
-            self.avgpool = nn.AvgPool2d(7, stride=1)
-            self.fc = nn.Linear(512 * block.expansion, num_classes)
-    
-            for m in self.modules():
-                if isinstance(m, nn.Conv2d):
-                    n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                    m.weight.data.normal_(0, math.sqrt(2. / n))
-                elif isinstance(m, nn.BatchNorm2d):
-                    m.weight.data.fill_(1)
-                    m.bias.data.zero_()
-    
-        def _make_layer(self, block, planes, blocks, stride=1):
-            downsample = None
-            if stride != 1 or self.inplanes != planes * block.expansion:
-                downsample = nn.Sequential(
-                    nn.Conv2d(self.inplanes, planes * block.expansion,
-                              kernel_size=1, stride=stride, bias=False),
-                    nn.BatchNorm2d(planes * block.expansion),
-                )
-    
-            layers = []
-            layers.append(block(self.inplanes, planes, stride, downsample))
-            self.inplanes = planes * block.expansion
-            for i in range(1, blocks):
-                layers.append(block(self.inplanes, planes))
-    
-            return nn.Sequential(*layers)
-    
-        def forward(self, x):
-            x = self.conv1(x)
-            x = self.bn1(x)
-            x = self.relu(x)
-            x = self.maxpool(x)
-    
-            x = self.layer1(x)
-            x = self.layer2(x)
-            x = self.layer3(x)
-            x = self.layer4(x)
-    
-            x = self.avgpool(x)
-            x = x.view(x.size(0), -1)
-            x = self.fc(x)
-    
-            return x
-    
-    \end{codeblock}
-    
+\paragraph{深度学习加速器的顶层逻辑}
+在深度学习运算加速器的顶层逻辑中，模块会先载入权值，将每个单元的运算结果写入累加器中。
+\begin{codeblock}[language=c++]
+#include "systemc.h"
+#include "systolic_pe.h"
+#include "systolic_array.h"
+#include "systolic_data_setup.h"
 
+SC_MODULE(systolic_top){
+  public:
+    sc_in_clk clk;
+    sc_in<bool> rst;
 
-\subsection{脉动阵列的仿真}
-% TODO 首先实现脉动和PE
-定义处理单元和实现脉动的行为。
-\begin{codeblock}[language=C]
-#include <iostream>
-#include <cstdlib>
-#include <ctime>
-#include <iomanip>
-#define N 256
-using namespace std;
+  //Array size
+  const static int N = systolic_array::N;
 
-typedef struct PE{
-    int weight;
-    int neuron;
-    int psum;
-};
+  //I/O
+  Connections::In<systolic_data_setup::WriteReq>  write_req;
+  Connections::In<systolic_data_setup::StartType> start;
+  Connections::In<systolic_pe::InputType>         weight_in_vec[N];
+  Connections::Out<systolic_pe::AccumType>        accum_out_vec[N];
 
-class Systolic{
-public:
-    PE S[N][N];
-public:
-    void Init(){
-        for(int i=0;i<N;i++)
-            for(int j=0;j<N;j++){
-                S[i][j].psum=0;
-                S[i][j].weight=0;
-                S[i][j].neuron=0;
-            }
+  //Interconnect
+  Connections::Combinational<systolic_pe::InputType>  act_in_vec[N];
+
+  //Instance of submodules
+  systolic_array      sa_inst;
+  systolic_data_setup sds_inst;
+
+  SC_HAS_PROCESS(systolic_top);
+  systolic_top(sc_module_name name_) : sc_module(name_),
+    sa_inst("sa_inst"),
+    sds_inst("sds_inst")
+  {
+    sa_inst.clk(clk);
+    sa_inst.rst(rst);
+    for(int i=0; i < N; i++){
+      sa_inst.weight_in_vec[i](weight_in_vec[i]);
+      sa_inst.accum_out_vec[i](accum_out_vec[i]);
+      sa_inst.act_in_vec[i](act_in_vec[i]);
+
+      sds_inst.act_in_vec[i](act_in_vec[i]);
     }
-    void calc(){
-        for(int i=0;i<N;i++)
-            for(int j=0;j<N;j++)
-                S[i][j].psum+=S[i][j].weight*S[i][j].neuron;
-    }
-    void shift(int a[N],int b[N]){
-        //水平方向传播矩阵A,a[N]是本次要被读入的列(left->right)
-        for(int i=0;i<N;i++)
-            for(int j=N-1;j>0;j--){
-                S[i][j].neuron=S[i][j-1].neuron;
-        }
-        for(int i=0;i<N;i++)
-            S[i][0].neuron=a[i];
-        //竖直方向上传播矩阵B,b[N]是本次要被读入的行(up->bottom)
-        for(int j=0;j<N;j++)
-            for(int i=N-1;i>0;i--){
-                S[i][j].weight=S[i-1][j].weight;
-        }
-        for(int j=0;j<N;j++)
-            S[0][j].weight=b[j];
-    }
-    void Display(){
-        cout<<"weight:"<<endl;
-        for(int i=0;i<N;i++){
-            for(int j=0;j<N;j++)
-                cout<<fixed<<setw(4)<<S[i][j].weight<<",";
-            cout<<endl;
-        }
-        cout<<"neuron:"<<endl;
-        for(int i=0;i<N;i++){
-            for(int j=0;j<N;j++)
-                cout<<fixed<<setw(4)<<S[i][j].neuron<<",";
-            cout<<endl;
-        }
-    }
+
+    sds_inst.clk(clk);
+    sds_inst.rst(rst);
+    sds_inst.start(start);
+    sds_inst.write_req(write_req);
+  }
 };
 
 \end{codeblock}
 
 
+下面是输入数据配置模块的实现代码。
+
+
+\begin{codeblock}[language=c++]
+#include "systemc.h"
+#include "systolic_pe.h"
+#include "systolic_array.h"
+#include "string"
+
+SC_MODULE(InputSetup)
+{
+ public: 
+  sc_in_clk     clk;
+  sc_in<bool>   rst;
+
+  typedef SysPE::InputType InputType;  
+  static const int N = SysArray::N;     // banks = N
+  static const int Entries = N*4;       // of entries per bank
+  static const int Capacity = N*Entries;
+  typedef ArbitratedScratchpad<InputType, Capacity, N, N, 0> MemType;
+
+  static const int IndexBits = nvhls::nbits<Entries-1>::val;
+  typedef NVUINTW(IndexBits) IndexType;
+  typedef NVUINTW(IndexBits+1) StartType;
+  typedef typename nvhls::nv_scvector <InputType, N> VectorType;
+  
+  // Customized data type for Input Write Request 
+  class WriteReq: public nvhls_message{
+   public:
+    VectorType data;
+    IndexType index;  
+    static const unsigned int width = IndexType::width + VectorType::width;
+
+    template <unsigned int Size>
+    void Marshall(Marshaller<Size>& m) {
+      m& data;
+      m& index;
+    }
+  };
+  
+  MemType mem_inst;
+
+  // I/O 
+  Connections::In<WriteReq>    write_req;
+  Connections::In<StartType>   start; // Push input col M as start signal
+  Connections::Out<InputType>  act_in_vec[N];
+
+  // Interconnect
+  // We use Request/Respons datatypes req\_t, rsp\_t defined in ArbitratedScratchpad
+  // req\_t:
+  //   * type (0: LOAD, 1: STORE), 
+  //   * vailds[N], 
+  //   * addr[N], 
+  //   * data[N]
+  // rsp\_t: 
+  //   * valids[N], 
+  //   * data[N]
+  Connections::Combinational<MemType::req_t> req_inter;  
+  Connections::Combinational<MemType::rsp_t> rsp_inter; 
+
+  SC_HAS_PROCESS(InputSetup);
+  InputSetup(sc_module_name name_) : sc_module(name_) {
+    SC_THREAD (MemoryRun);
+    sensitive << clk.pos();
+    sensitive << rst.neg();
+
+    SC_THREAD (ReadReqRun);
+    sensitive << clk.pos();
+    sensitive << rst.neg();
+    
+    SC_THREAD (ReadRspRun);
+    sensitive << clk.pos();
+    sensitive << rst.neg();
+  }
+
+  // Handels memory R/W
+  void MemoryRun() {
+    write_req.Reset();
+    req_inter.ResetRead();
+    rsp_inter.ResetWrite();
+
+    while(1) {
+      WriteReq write_req_reg;
+      MemType::req_t req_reg;
+      MemType::rsp_t rsp_reg;
+
+      bool input_ready[N];   // we neglect this features
+      bool is_read = 0, is_write = 0;
+     
+      if (req_inter.PopNB(req_reg)) {
+        is_read = 1;
+      }
+      else if (write_req.PopNB(write_req_reg)) {
+        is_write = 1;
+        req_reg.type.val = CLITYPE_T::STORE;
+        for (int i = 0; i < N; i++) {
+          req_reg.valids[i] = true;
+          req_reg.addr[i] = write_req_reg.index*N + i;
+          req_reg.data[i] = write_req_reg.data[i];
+        }
+      }
+
+      if (is_read || is_write) {
+        mem_inst.load_store(req_reg, rsp_reg, input_ready);
+      }
+      if (is_read) {
+        rsp_inter.Push(rsp_reg);
+      }
+      wait();
+    }
+  }
+  
+  // The main process that generate read req that matches
+  //   systolic array data setup
+  void ReadReqRun() {
+    start.Reset();
+    req_inter.ResetWrite();   
+
+    while(1) {
+      StartType M;
+      M = start.Pop();
+      MemType::req_t req_reg;              // Request Message 
+      req_reg.type.val = CLITYPE_T::LOAD;  // Set to load mode for read request
+
+      // With given N, M, we want to generate and push a sequence of read requests
+      //   i.e. addr/valids that matches Systolic array data pattern
+      // 
+      // For example (N=4), first read request should be reading only the 
+      // entry 0 of first bank. Thus,
+      // First Read Req: 
+      //   req\_reg.valids = [1, 0, 0, 0]
+      //   req\_reg.addr   = [0, 0, 0, 0]
+      //  
+      // Second Read Req:
+      //   req\_reg.valids = [1, 1, 0, 0]
+      //   req\_reg.addr   = [4, 1, 0, 0] = [1*4, 0*4+1, 0, 0]
+      // 
+      // Note that addr = N*bank\_addr + bank\_index
+      
+      if(M) { // wait for start signal
+        int T = M + N - 1;
+
+        // for each time step
+        for(int t = 0; t< T; t++){
+          if(t<N){ // first case : entering cascade
+            // for each bank id
+            for(int i = 0; i < N; i++){
+          
+              // cascade pattern, not that i<t in the diagram
+              if(i<=t){
+                //addr = N * bank\_addr + bank\_id
+                req_reg.addr[i] = N*(t-i) + i;
+                //flip valid bit
+                req_reg.valids[i] = 1;
+              }else{
+                //should be empty and not valid
+                req_reg.addr[i] = 0;
+                req_reg.valids[i] = 0;
+              }
+            }
+          }
+          
+          else if (t>=M){ // second case: leaving cascade
+            // for each bank id
+            for(int i = 0; i < N; i++){
+          
+              // cascade pattern, note that bank\_id > t-M
+              if(i>t-M){
+                //addr = N * bank\_addr + bank\_id
+                req_reg.addr[i] = N*(t-i) + i;
+                //flip valid bit
+                req_reg.valids[i] = 1;
+              }else{
+                //should be empty and not valid
+                req_reg.addr[i] = 0;
+                req_reg.valids[i] = 0;
+              }
+            }
+          }
+          
+          else{ // last case: middle part
+            // for each bank id
+            for(int i = 0; i < N; i++){
+                //addr = N * bank\_addr + bank\_id
+                req_reg.addr[i] = N*(t-i) + i;
+                //flip valid bit
+                req_reg.valids[i] = 1;
+            }
+          }
+          req_inter.PushNB(req_reg);
+          wait();
+        }
+      }
+      wait();
+    }
+  }
+
+  // Push data read from SRAM to SysArray
+  //   only push banks with valid rsp
+  void ReadRspRun() {
+    for (int i = 0; i < N; i++) {
+      act_in_vec[i].Reset();
+    }
+   
+    rsp_inter.ResetRead();
+
+    while(1) {
+      MemType::rsp_t rsp_reg; 
+      if (rsp_inter.PopNB(rsp_reg)) {
+        for (int i = 0; i < N; i++) {
+          if (rsp_reg.valids[i] == true)
+            act_in_vec[i].Push(rsp_reg.data[i]);
+        }
+      }
+      wait();
+    }
+  }
+};
+
+
+
+\end{codeblock}
+
+\paragraph{脉动阵列}
+脉动阵列的代码描述了何时输入激活和权重，何时输出累加值。
+
+
+
+\begin{codeblock}[language=c++]
+
+#include "systemc.h"
+#include "systolic_pe.h"
+#include <string>
+
+SC_MODULE(systolic_array){
+  public:
+    sc_in_clk   clk;
+    sc_in<bool> rst;
+
+  //Array size
+  const static int N = 64;
+
+  systolic_pe* pe_array[N][N];
+
+  //I/O
+  Connections::In<systolic_pe::InputType>   weight_in_vec[N];
+  Connections::In<systolic_pe::InputType>   act_in_vec[N];
+  Connections::Out<systolic_pe::AccumType>  accum_out_vec[N];
+
+  //Interconnection Channels
+  Connections::Combinational<SysPE::InputType> weight_inter[N][N];
+  Connections::Combinational<SysPE::InputType> act_inter[N][N]; 
+  Connections::Combinational<SysPE::AccumType> accum_inter[N][N];
+
+  SC_HAS_PROCESS(SysArray);
+  SysArray(sc_module_name name_) : sc_module(name_) {
+    for (int i = 0; i < N; i++) {    // rows
+      for (int j = 0; j < N; j++) {  // cols
+        pe_array[i][j] = new SysPE(sc_gen_unique_name("pe"));
+        pe_array[i][j]->clk(clk);
+        pe_array[i][j]->rst(rst);
+        
+        // Weight Connections
+        if (i == 0) {    // from Array weight (row 0)
+          pe_array[i][j]->weight_in(weight_in_vec[j]);
+          pe_array[i][j]->weight_out(weight_inter[i][j]);
+        }
+        else {           // from Array weight (row 1, 2, N-1)
+          pe_array[i][j]->weight_in(weight_inter[i-1][j]);
+          pe_array[i][j]->weight_out(weight_inter[i][j]);
+        }
+        // Act Connections
+        if (j == 0) {  // from Array input (col 0)
+          pe_array[i][j]->act_in(act_in_vec[i]);
+          pe_array[i][j]->act_out(act_inter[i][j]);
+        }
+        else {         // from Array input (col 1, 2...)
+          pe_array[i][j]->act_in(act_inter[i][j-1]);
+          pe_array[i][j]->act_out(act_inter[i][j]);
+        }
+        // Accum Connections
+        if (i != N-1) {  // from Array Accum (row 0, 1, N-2)
+          pe_array[i][j]->accum_in(accum_inter[i][j]);
+          pe_array[i][j]->accum_out(accum_inter[i+1][j]);
+        }
+        else {           // from Array Accum (row N-1)
+          pe_array[i][j]->accum_in(accum_inter[i][j]);
+          pe_array[i][j]->accum_out(accum_out_vec[j]);
+        }
+      }  
+    }
+ 
+    SC_THREAD (WeightOutRun);
+    sensitive << clk.pos();
+    sensitive << rst.neg();
+    
+    SC_THREAD (ActOutRun);
+    sensitive << clk.pos();
+    sensitive << rst.neg();
+    
+    SC_THREAD (AccumInRun);
+    sensitive << clk.pos();
+    sensitive << rst.neg();
+  }
+
+  // Receive act\_out from col N-1 (PopNB, every cycle)
+  // use ResetRead to indicate the output port of channel
+  void WeightOutRun() {
+    for (int j = 0; j < N; j++) {
+       weight_inter[N-1][j].ResetRead();
+    }
+    
+    while(1) {
+      for (int j = 0; j < N; j++) {
+        SysPE::InputType weight_tmp; 
+        weight_inter[N-1][j].PopNB(weight_tmp);
+      }
+      wait();
+    }
+  }
+
+  // Receive act\_out from col N-1 (PopNB, every cycle)
+  // use ResetRead to indicate the output port of channel
+  void ActOutRun() {
+    for (int i = 0; i < N; i++) {
+       act_inter[i][N-1].ResetRead();
+    }
+    
+    while(1) {
+      for (int i = 0; i < N; i++) {
+        SysPE::InputType act_tmp; 
+        act_inter[i][N-1].PopNB(act_tmp);
+      }
+      wait();
+    }
+  }
+
+  // Send 0 to accum\_in of row 0 (PushNB, every cycle)
+  // use ResetWrite to indicate the input port of channel
+  void AccumInRun() {
+    for (int j = 0; j < N; j++) {
+       accum_inter[0][j].ResetWrite();
+    }
+
+    while(1) {
+      for (int j = 0; j < N; j++) {
+        accum_inter[0][j].PushNB(0);
+      }
+      wait();
+    }
+  }
+
+};
+
+\end{codeblock}
+
+
+\paragraph{处理单元}
+处理单元（PE）的代码描述了PE具有的所有寄存器和输入输出端口。
+同时，也描述了处理单元运行时的行为。
+
+\begin{codeblock}[language=c++]
+#include "systemc.h"
+
+SC_MODULE(systolic_pe){
+  public:
+  sc_in_clk   clk;
+  sc_in<bool> rst;
+
+  typedef uint8_t   InputType;
+  typedef uint32_t  AccumType;
+
+  //Interface Ports
+  Connections::In<InputType>    weight_in;
+  Connections::In<InputType>    act_in;
+  Connections::In<AccumType>    accum_in;
+
+  Connections::Out<InputType>  weight_out;
+  Connections::Out<InputType>  act_out;
+  Connections::Out<AccumType>  accum_out;
+
+  SC_HAS_PROCESS(systolic_pe);
+  SysPE(sc_module_name name_) : sc_module(name_) {
+    SC_THREAD (PERun);
+    sensitive << clk.pos();
+    sensitive << rst.neg();
+  }
+
+  bool is_weight_in, is_act_in, is_accum_in;
+
+  InputType weight_reg, weight_out_reg;
+  InputType act_reg;
+  AccumType accum_reg;
+
+  void PERun() {
+    weight_in.Reset();
+    act_in.Reset();
+    accum_in.Reset();
+    weight_out.Reset();
+    act_out.Reset();
+    accum_out.Reset();
+    
+    is_weight_in = 0;
+    is_act_in = 0;
+    is_accum_in = 0;
+    weight_reg = 0;
+    weight_out_reg = 0;
+    act_reg = 0;
+    accum_reg = 0;
+  
+    while(1) {
+      InputType tmp;
+      if (weight_in.PopNB(tmp)){
+        is_weight_in = 1;
+        weight_out_reg = weight_reg;
+        weight_reg = tmp;
+      }
+      if (!is_act_in) {
+        is_act_in = act_in.PopNB(act_reg);
+      }
+      if (!is_accum_in) {
+        is_accum_in = accum_in.PopNB(accum_reg);
+      }
+    
+      if (is_act_in && is_accum_in) {
+        is_act_in = 0;
+        is_accum_in = 0;
+
+        AccumType accum_out_reg = act_reg*weight_reg + accum_reg;
+
+        act_out.Push(act_reg);
+        accum_out.Push(accum_out_reg);
+      }
+      if (is_weight_in == 1) {
+        is_weight_in = 0;
+        weight_out.Push(weight_out_reg);
+      }
+      wait();
+    }
+  }
+
+
+};
+
+
+\end{codeblock}
+
+\paragraph{基于pytorch的对比模型}
+% ResNet18 代码实现，转移到第三章
+\begin{codeblock}[language=python]
+class BasicBlock(nn.Module):
+    expansion: int = 1
+
+    def __init__(
+        self,
+        inplanes: int,
+        planes: int,
+        stride: int = 1,
+        downsample: Optional[nn.Module] = None,
+        groups: int = 1,
+        base_width: int = 64,
+        dilation: int = 1,
+        norm_layer: Optional[Callable[..., nn.Module]] = None,
+    ):
+        super().__init__()
+        if norm_layer is None:
+            norm_layer = nn.BatchNorm2d
+        if groups != 1 or base_width != 64:
+            raise ValueError("BasicBlock only supports groups=1 and base_width=64")
+        if dilation > 1:
+            raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
+        # Both self.conv1 and self.downsample layers downsample the input when stride != 1
+        self.conv1 = conv3x3(inplanes, planes, stride)
+        self.bn1 = norm_layer(planes)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = conv3x3(planes, planes)
+        self.bn2 = norm_layer(planes)
+        self.downsample = downsample
+        self.stride = stride
+
+    def forward(self, x: Tensor):
+        identity = x
+
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.relu(out)
+
+        out = self.conv2(out)
+        out = self.bn2(out)
+
+        if self.downsample is not None:
+            identity = self.downsample(x)
+
+        out += identity
+        out = self.relu(out)
+
+        return out
+
+\end{codeblock}
+    
+    
+    
+下面使用pytorch来实现resnet18，以此来观察各个层之间的数据流。
+\begin{codeblock}[language=python]
+class ResNet18(nn.Module):
+    def __init__(self, block, layers, num_classes=1000):
+        self.inplanes = 64
+        super(ResNet, self).__init__()
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3,
+                                bias=False)
+        self.bn1 = nn.BatchNorm2d(64)
+        self.relu = nn.ReLU(inplace=True)
+        self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        self.layer1 = self._make_layer(block, 64, layers[0])
+        self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
+        self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
+        self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
+        self.avgpool = nn.AvgPool2d(7, stride=1)
+        self.fc = nn.Linear(512 * block.expansion, num_classes)
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+                m.weight.data.normal_(0, math.sqrt(2. / n))
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+
+    def _make_layer(self, block, planes, blocks, stride=1):
+        downsample = None
+        if stride != 1 or self.inplanes != planes * block.expansion:
+            downsample = nn.Sequential(
+                nn.Conv2d(self.inplanes, planes * block.expansion,
+                          kernel_size=1, stride=stride, bias=False),
+                nn.BatchNorm2d(planes * block.expansion),
+            )
+
+        layers = []
+        layers.append(block(self.inplanes, planes, stride, downsample))
+        self.inplanes = planes * block.expansion
+        for i in range(1, blocks):
+            layers.append(block(self.inplanes, planes))
+
+        return nn.Sequential(*layers)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+
+        x = self.avgpool(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+
+        return x
+
+\end{codeblock}
 

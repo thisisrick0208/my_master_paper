@@ -1,59 +1,18 @@
 % !TEX root = ../main.tex
 
-\chapter{Maxwell Equations}
+\chapter{ShiDianNao加速器架构}
 
-选择二维情况，有如下的偏振矢量：
-\begin{subequations}
-  \begin{align}
-    {\bf E} &= E_z(r, \theta) \hat{\bf z}, \\
-    {\bf H} &= H_r(r, \theta) \hat{\bf r} + H_\theta(r, \theta) \hat{\bm\theta}.
-  \end{align}
-\end{subequations}
-对上式求旋度：
-\begin{subequations}
-  \begin{align}
-    \nabla \times {\bf E} &= \frac{1}{r} \frac{\partial E_z}{\partial\theta}
-      \hat{\bf r} - \frac{\partial E_z}{\partial r} \hat{\bm\theta}, \\
-    \nabla \times {\bf H} &= \left[\frac{1}{r} \frac{\partial}{\partial r}
-      (r H_\theta) - \frac{1}{r} \frac{\partial H_r}{\partial\theta} \right]
-      \hat{\bf z}.
-  \end{align}
-\end{subequations}
-因为在柱坐标系下，$\overline{\overline\mu}$ 是对角的，所以 Maxwell 方程组中电场
-$\bf E$ 的旋度：
-\begin{subequations}
-  \begin{align}
-    & \nabla \times {\bf E} = \upi \omega {\bf B}, \\
-    & \frac{1}{r} \frac{\partial E_z}{\partial\theta} \hat{\bf r} -
-      \frac{\partial E_z}{\partial r}\hat{\bm\theta} = \upi \omega \mu_r H_r
-      \hat{\bf r} + \upi \omega \mu_\theta H_\theta \hat{\bm\theta}.
-  \end{align}
-\end{subequations}
-所以 $\bf H$ 的各个分量可以写为：
-\begin{subequations}
-  \begin{align}
-    H_r &= \frac{1}{\upi \omega \mu_r} \frac{1}{r}
-      \frac{\partial E_z}{\partial\theta}, \\
-    H_\theta &= -\frac{1}{\upi \omega \mu_\theta}
-      \frac{\partial E_z}{\partial r}.
-  \end{align}
-\end{subequations}
-同样地，在柱坐标系下，$\overline{\overline\epsilon}$ 是对角的，所以 Maxwell 方程
-组中磁场 $\bf H$ 的旋度：
-\begin{subequations}
-  \begin{align}
-    & \nabla \times {\bf H} = -\upi \omega {\bf D}, \\
-    & \left[\frac{1}{r} \frac{\partial}{\partial r}(r H_\theta) - \frac{1}{r}
-      \frac{\partial H_r}{\partial\theta} \right] \hat{\bf z} = -\upi \omega
-      {\overline{\overline\epsilon}} {\bf E} = -\upi \omega \epsilon_z E_z
-      \hat{\bf z}, \\
-    & \frac{1}{r} \frac{\partial}{\partial r}(r H_\theta) - \frac{1}{r}
-      \frac{\partial H_r}{\partial\theta} = -\upi \omega \epsilon_z E_z.
-  \end{align}
-\end{subequations}
-由此我们可以得到关于 $E_z$ 的波函数方程：
-\begin{equation}
-  \frac{1}{\mu_\theta \epsilon_z} \frac{1}{r} \frac{\partial}{\partial r}
-  \left(r \frac{\partial E_z}{\partial r} \right) + \frac{1}{\mu_r \epsilon_z}
-  \frac{1}{r^2} \frac{\partial^2E_z}{\partial\theta^2} +\omega^2 E_z = 0.
-\end{equation}
+如图\ref{fig:shidiannao_acc_arch}所示，我们的加速器由以下主要组件组成：输入和输出神经元的两个缓冲区（NBin和NBout）、突触的缓冲区（SB）、计算输出神经元的神经功能单元（NFU）和算术单元（ALU）以及指令的缓冲区和解码器（IB）。
+在本节的其余部分中，我们将介绍计算结构，在接下来的部分中，我们将描述存储和控制结构。
+我们的加速器有两个功能单元，一个NFU调节基本神经元操作（乘法、加法和比较）和一个ALU执行激活函数计算。
+在这两种计算结构中，我们使用16位定点算术运算符，而不是传统的32位浮点运算符，原因有两方面。
+首先，使用16位定点算子会给神经网络带来可忽略不计的精度损失，这已被先前的研究所验证。
+其次，使用较小的运营商可以显著降低硬件成本。例如，在台积电65nm技术中，16位截断定点乘法器比32位浮点多乘法器小6.10倍，节能7.33倍.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=12cm]{figures/shidiannao_acc_arch.png}
+  \caption{ShiDianNao加速器架构图}
+  \label{fig:shidiannao_acc_arch}
+\end{figure} 
+

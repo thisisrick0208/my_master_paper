@@ -6,6 +6,8 @@
 研究的内容和意义。
 
 \section{国内外研究现状}
+本章节将从描述CIS芯片开始，结合人工智能软硬间发展的历史，引出本课题的背景研究意义。
+
 
 \subsection{ASIC与CIS芯片}
 %TODO 描述ASIC的基本概念
@@ -20,7 +22,7 @@ ASIC设计对任何公司来说都是一项高难度的挑战。
 CMOS图像传感器通常由像敏单元阵列、行驱动器、列驱动器、时序控制逻辑、AD转换器、数据总线输出接口、控制接口等几部分组成, 这几部分通常都被集成在同一块硅片上。
 其工作过程一般可分为复位、光电转换、积分、读出几部分。  
 索尼在2012年推出了全球首款用于消费电子产品的堆叠芯片CIS相机系统（CIS+ISP）。
-在2017年的ISSCC大会上，索尼又发布了他们的一款三层堆栈式CIS。[1] %引用
+在2017年的ISSCC大会上，索尼又发布了他们的一款三层堆栈式CIS。\parencite{sony2017} %引用
 其结构为：顶层的图像感知层、中间的DRAM层和底层的逻辑电路层（CIS+DRAM+ISP）。
 堆栈式CIS芯片成为了发展趋势。
 随着各厂商的设计能力与工艺的提升，越来越多的IP被集成到CIS芯片的堆栈中，使得现今的CIS芯片功能更加强大和复杂。
@@ -29,8 +31,11 @@ CMOS图像传感器通常由像敏单元阵列、行驱动器、列驱动器、�
 \subsection{深度学习和残差网络}
 想要实现深度学习神经网络算法的硬件加速，就先要对深度学习神经网络算法有所了解。
 % 简述DL的发展，例举出最经典的一些算法。
-卷积神经网络(Convolutional Neural Networks, CNNs)和深度神经网络(Deep Neural Networks, DNNs)是目前最先进的两种机器学习算法之一。%引用
-它们都属于多层感知器(MLPs)家族，可能包括四种类型的层:卷积层、池化层、归一化层和分类器层。%引用
+卷积神经网络(Convolutional Neural Networks, CNNs)\parencite{cnn1998}和深度神经网络(Deep Neural Networks, DNNs)\cite{dl2015}是目前最先进的两种机器学习算法之一。
+%引用 Y. LeCun, L. Bottou, Y. Bengio, and P. Haffner, “Gradient-Based Learning Applied to Document Recognition,” Proceedings of the IEEE, vol. 86, no. 11, pp. 2278– 2324, 1998.
+%引用 Deep Learning, by Yann L., Yoshua B. & Geoffrey H. (2015) 
+它们都属于多层感知器(MLPs)家族，可能包括四种类型的层:卷积层、池化层、归一化层和分类器层\parencite{NN1998}。%引用
+% 引用  S. Haykin, Neural Networks: A Comprehensive Foundation, 2nd ed. Upper Saddle River, NJ, USA: Prentice Hall PTR, 1998.
 回顾深度学习算法的发展史,始于LeNet识别了10个手写的数字。
 它是一种广泛用于文档识别的卷积神经网络，由两个卷积层、两个池层和三个分类器层组成。
 卷积层实际上是一种滤波器。它可以用来识别输入的特征图的某些特征。
@@ -38,9 +43,20 @@ CMOS图像传感器通常由像敏单元阵列、行驱动器、列驱动器、�
 这个卷积窗口将捕获一个输入特征映射中的$K_x$x$K_y$尺寸的输入神经元。
 局部滤波器的2D阵列产生一个输出特征映射。
 其中的每一个局部滤波器对应一个输出神经元。
+深度学习算法的爆发期在2012年至2017年。
+2012年多伦多大学的Geoffrey Hinton的课题组首次参加ImageNet图像识别比赛，就通过其构建的卷积神经网络AlexNet\cite{alexnet2012}一举夺得冠军。
+他们的成绩大幅超出了第二名（一种SVM）的分类性能。
+这使得AlexNet成为近年的一个里程碑。
+%引用  Krizhevsky A, Sutskever I, Hinton G E. Imagenet classification with deep convolutional neural networks[C]//Advances in neural information processing systems. 2012: 1097-1105.
+
 
 % 简述ResNet
 % TODO 简述ResNet18的网络结构
+近几年的ImageNet比赛中，网络的深度越来越深。
+随着网络的加深，产生了梯度消失或者梯度爆炸的问题，导致训练的准确率下降的现象。
+这种现象并不是由过拟合导致的，因为过拟合的现象发生时，训练的准确率会表现得非常高。
+针对这个问题何恺明博士在2015年提出的ResNet很好地解决了这个问题，并在2015年的ImageNet比赛上获得了第一名\parencite{resnet2015}。
+% 引用
 ResNet18由4个主要的残差层组成。
 整个网络的开头，由7x7的卷积核做卷积运算和3x3的最大池化。
 卷积运算有64个输出的通道。设定的步长是2，填充的边框是3。
@@ -66,14 +82,17 @@ ResNet可能使用两种不同的残差单元。一种是BasicBlock，用于ResN
 
 
 \subsubsection{深度学习运算硬件的发展史}
-2012年多伦多大学基于AlexNet开发的SuperVision在ImageNet处理上实现了极大的提升是近年的一个里程碑。%引用
-感知时代也始于2012年。之后谷歌在几千台普通机器上进行了出色的并行CPU有损更新研究。
+
+感知时代始于2012年。之后谷歌在几千台普通机器上进行了出色的并行CPU有损更新研究。
 在这之后的2014年，VGGNet与GoogLenet相继诞生，专为神经网络设计的硬件在90年代初诞生。
-CNAPS（1990），它带有64个处理单元和256kB内存，可以在8/16位条件下达到1.6 GCPS的速度（CPS是指每秒连接次数 / connections per second）或在1位条件下达到12.8GCPS的速度。%\cite{ref1}   
+CNAPS（1990），它带有64个处理单元和256kB内存，可以在8/16位条件下达到1.6 GCPS的速度（CPS是指每秒连接次数 / connections per second）或在1位条件下达到12.8GCPS的速度。\cite{Heemskerk1995OverviewON}
+%\cite{ref1}    Overview of neural hardware
 
 随着大数据和深度学习的发展，用于相关领域的硬件发展趋势也受到业内人士以及专家们的广泛关注。
 在半导体领域，2019 ISSCC大会于2月17—21日在美国旧金山开幕。
-Facebook首席AI科学家Yann LeCun在会上发表了主题演讲”深度学习硬件：过去、现在和未来“，详细介绍了深度学习研究的发展将如何影响未来硬件架构。%引用  
+Facebook首席AI科学家Yann LeCun在会上发表了主题演讲”深度学习硬件：过去、现在和未来“，详细介绍了深度学习研究的发展将如何影响未来硬件架构。\cite{Yann2019DeepLH}
+%引用  ISSCC 2019 Deep Learning Hardware: Past, Present, and Future
+
 
 深度神经网络在图像的识别、分类、检测和分割等领域起到了非常重要的作用。
 在各种DNN的网络结构中，卷积神经网络是最常见的一种。
@@ -126,12 +145,14 @@ ASIC作为一种专用的硬件加速方案，在性能和功耗，特别是能�
 另外，加速器本身处在数据通路中，将会进一步减少为了读取输入数据和写入输出数据而进行的DRAM访问。   
 
 与机器学习或深度学习相关的边缘计算领域也在今年得到了长足的发展。
-例如：由Pete Warden 与 Daniel Situnayake在2019年提出的TinyML就是在毫瓦功率的微处理器上，实现机器学习算法、工具和技术。%引用
+例如：由Pete Warden 与 Daniel Situnayake在2019年提出的TinyML就是在毫瓦功率的微处理器上，实现机器学习算法、工具和技术。
+%引用  TinyML
 这一技术是基于Tensorflow Lite在微控器上的软件框架和硬件环境而来的。
 一般来说，它只需要几十千字节的存储空间。  
 
 在CIS的领域，物联网中的感知节点数量持续快速增长，产生海量数据。
-到2032年，从感官节点产生的信息相当于1020bit/s，远大于人类感官总吞吐量。%引用
+到2032年，从感官节点产生的信息相当于1020bit/s，远大于人类感官总吞吐量。
+%引用
 尽管5G网络或是将来的6G网络会为物联网提供高速传输和大带宽。
 因此，近传感器和传感器内计算范式的概念被提了出来。
 通过它们在传感器和运算单元之间的位置来定义它们输入哪一种类型。
@@ -269,11 +290,95 @@ TPU拥有4级流水线。同时设计了一组指令来控制访存和运算。�
 这里的脉动阵列是使用乘累加器作为其处理单元的。
 它非常适合用于如矩阵运算，卷积等等数据流具有一定规律的算法。  
 
+\paragraph{脉动阵列上的卷积运算}
+上面两个小节已经分别描述了谷歌TPU的架构和普通的脉动阵列做乘加运算的过程。
+但是在本课题中需要做的是卷积运算，与矩阵的乘加运算是有区别的。
+这一小节将描述谷歌TPU是如何基于脉动阵列执行卷积运算的。
+谷歌TPU在进行卷积运算时，会把卷积运算转化为二维矩阵乘法。
+神经网络处理器会把激活输入和权重输入放到矩阵的行和列中。
+激活值和权重在脉动阵列中向右和向下传播（从矩阵左边和上边输入），直到到达指定的运算单元的指定寄存器中。
+一旦运算单元中的输入数据都放好，通过控制信号，处理器就会将输入数据经过计算得到输出数据。
+这里举一个在谷歌TPU中5x5的激活输入使用3x3的卷积核做卷积的例子，这个输入是170x170大小原图的一部分。
+如图\ref{fig:activation_and_kernel}是输入的激活和卷积核。
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[]{figures/activation_and_kernel.png}
+    \caption{输入和卷积核}
+    \label{fig:activation_and_kernel}
+\end{figure} 
 
+在处理器把激活数据矩阵送进脉动阵列前，会先把矩阵重组为二维的矩阵，然后放入一个向量队列中，然后由多路复用器通过某种算法输入激活。
+向量输入队列的排序如图\ref{fig:vector_inputs}所示.
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[]{figures/vector_inputs.png}
+    \caption{输入和卷积核}
+    \label{fig:vector_inputs}
+\end{figure} 
+
+在送入输入数据之前，处理器会执行“旋转卷积核”的操作。
+具体对3x3的卷积核做“旋转”的操作后，得到下图\ref{fig:rotated_kernel}中的结果。
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=12cm,height=1.8cm]{figures/rotated_kernel.png}
+    \caption{输入和卷积核}
+    \label{fig:rotated_kernel}
+\end{figure} 
+
+多路复用器对应卷积核选取输入数据的排序如下图\ref{fig:multiplexor}所示。
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[]{figures/multiplexor.png}
+    \caption{输入和卷积核}
+    \label{fig:multiplexor}
+\end{figure} 
+
+在脉动阵列运行时，模块中的脉动数据配置子模块会根据向量输入队列和多路复用器来依次输入数据到脉动阵列中。
+下面图\ref{fig:systolic_data_col0}和图\ref{fig:systolic_data_col4}分别是多路复用器选择的第一组数据和第四组数据。
+激活输入矩阵按照卷积核的大小，切割成四组数据，分别按四路放置于向量输入队列中。
+多路复用器中的编码就是指的向量输入队列的编号。
+可以推论，向量输入会按照脉动的频率向脉动阵列中输入数据，在输入时使用多路复用器来选择使用哪一路的数据。
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=12cm]{figures/systolic_data_col0.png}
+    \caption{多路复用器选择第0列数据}
+    \label{fig:systolic_data_col0}
+\end{figure} 
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=12cm]{figures/systolic_data_col4.png}
+    \caption{多路复用器选择第4列数据}
+    \label{fig:systolic_data_col4}
+\end{figure} 
+当输入数据和权重都放到指定的运算单元后，脉动阵列会执行乘法和累加运算。
+以此可见，脉动阵列向下传递的是向量输入和部分和。
+最终在输入脉动阵列的数据全都经过计算之后，得到输出的值。
+详细的完整例子，可见附录B。
 
 
 
 \subsection{建模与IC验证}
+在IC设计行业，ASIC项目的拖期情况非常严重，其中有些项目会拖期半年以上。
+除了项目容易延期，ASIC项目的失败率也非常高。
+小米的澎湃S2处理器曾多次流片失败。
+研发一款ASIC芯片的道路充满了艰难险阻。
+ASIC芯片的特点与简单指令集的CPU完全相反，它被设计出来的目的就是为了实现复杂功能。
+所以ASIC芯片的设计一般都是以具体业务作为需求。
+这会导致其设计过程非常繁琐。
+如图\ref{fig:asic_flow}是ASIC的开发流程图.IC设计公司会在项目初始时完成市场需求设计（MRD）和产品需求设计（PRD）。
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=12cm,height=7cm]{figures/asic_flow.jpeg}
+    \caption{ASIC开发流程图}
+    \label{fig:asic_flow}
+\end{figure}
+在需求被明确之后，系统工程师就会开始进行架构设计。
+这个过程包含了提出顶层架构设计和定义需求中所有用例涉及到的子模块，并且定义各个子模块之间的连接关系、交互方式和时序要求。
+在完成芯片的架构设计之后，需要对芯片进行建模。芯片建模是用一种高级语言对芯片的行为进行描述。
+一般会采用C/C++或者SystemC来实现建模。
+如果涉及到新的算法模块，会要求算法工程师先做出算法的Matlab或者C模型，作为模块开发者和芯片模型的参考依据。   
+
 % 简述IC验证
 芯片在流片之前，需要进行完整和详细的IC验证工作。
 工程师需要尽可能地找出项目的缺陷，从而降低流片的风险，节省人力和物力资源。
@@ -290,17 +395,36 @@ C/C++或python建模可以视为仅需要人力成本。
 FPGA设备非常昂贵单台设备的价值可能是数万至数十万元人民币，其编码和仿真所需的时间不多，但其编译所需的时间非常长。
 编译一个可烧录的文件经常需要数小时甚至数十小时。
 
+\paragraph{SystemC}
+在建模的过程中将会采用SystemC作为建模的语言。
+SystemC既是系统级语言，也是硬件描述语言。
+%引用《SystemC入门》（第二版）
+SystemC 由 C++发展而来，是优秀的系统级描述语言，SystemC 单元库结构如图\ref{fig:systemc_libs}所示，它使软硬件工程师可以在统一的环境下同时描述软硬件结构和接口， 它将通信与功能分开，能提供更高设计效率，将集成电路设计引入事务级，提供 更有效的设计流程，从而帮助解决集成电路产业面临的各种问题，从此可以预见 SystemC 的光明前景。
+% 引用 单中伟. 1553B 总线远程终端的 FPGA 程序设计[J]. 现代电子技术, 2013(09): 28-30.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=8cm]{figures/systemc_libs.png}
+    \caption{SystemC单元库}
+    \label{fig:systemc_libs}
+\end{figure} 
+传统的硬件设计使用如 Verilog HDL 或者 VHDL 等硬 件描述语言，而软件设计则使用不同的语言，所以在进行软硬件协同验证时比较 困难,并且软件的设计往往要迟于硬件系统证成为制约设计效率的主要因素为提高 工作效率，人们引进了 SystemC 语言，使得在运用 SystemC 对硬件进行建模时， 可以在一开始就能够同时进行软硬件的设计，这是传统的 SoC 设计所比不了的。
+%引用 Zhao Changyu, Yan Changxiang, Yu Ping. Real time scheduling of messages on 1553B bus[J]. Optics and Precision Engineering, 2010, 18(3): 732-40.
+在下文的“建模和验证”章节，将使用SystemC作为实现本文设计的建模语言，实现系统级建模和算法的仿效。
 
 \section{主要研究内容和意义}
 
 %TODO CIS增强芯片	神经网络推理 系统级建模
 %TODO 研究一种CIS片内的神经网络推理模块的系统级建模
-本课题的主要工作内容就是在良好的理解计算机系统，以及对深度学习神经网络算法有一定理解的基础上，运用系统级建模的方法，设计并验证一种能够加速CIS芯片片内进行深度学习神经网络推理运算的方案。  
+本课题的主要工作内容就是在良好的理解计算机系统，以及对深度学习神经网络算法有一定理解的基础上，运用系统级建模的方法，设计和建模一种能够加速CIS芯片片内进行深度学习神经网络推理运算的方案。  
 本课题设计的CIS深度学习神经网络运算加速方案，实现了一种基于脉动阵列的ResNet18的神经网络来进行推理。
-其整体结构是基于当前比较先进的堆栈式CIS芯片，在CIS片内集成了传感器核心、ISP、深度学习神经网络运算模块以及其他的功能模块。
-在本设计中，我们不会详细展开描述图像传感器核心和ISP等用于基础的图像处理模块的设计，而是把这些模块作为一个黑盒得到一种假设深度学习神经网络算法可以处理的图像的基础。  
+其整体结构是基于当前比较先进的堆栈式CIS芯片，在CIS片内集成了传感器核心、深度学习神经网络运算模块以及其他的功能模块。
+在设计深度学习神经网络加速器时，本文将讨论和设计脉动阵列的设计，以及神经网络算法在脉动阵列上的应用。    
 
-%TODO 简介一下使用的平台，包括硬件和软件。
-课题中将以设计和建模的方式来讨论上述问题。
 
-因此，使用python建模对算法和高层次设计进行验证是比较合适的。
+这种设计实践了“软件定义硬件”的新概念。
+其设计和建模过程本身就是一种方法学的探索。
+在进行芯片的设计时，系统级建模和算法验证是其中的关键部分。
+本文通过构建CIS芯片上的深度学习神经网络加速器的系统级模型，将需要处理的诸多硬件信号作为抽象数据类型进行操作，忽略RTL管脚的通信细节，通过调用相应函数来进行模块之间的通信，提高仿真的速度。
+%引用  Weijers J.W, Glassee M, Schuster T. ESL design and HW/SW co-verification of high-end Software Defined Radio platforms[C]. Hardware/Software Codesign and System Synthesis (CODES+ISSS), 2007 5th IEEE/ACM/IFIP International Conference, Salzburg, 2007: 191-196.
+在充分描述系统控制逻辑和算法后，通过SystemC来实现建模的工作。
