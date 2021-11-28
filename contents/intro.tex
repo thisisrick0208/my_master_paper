@@ -22,7 +22,7 @@ ASIC设计对任何公司来说都是一项高难度的挑战。
 CMOS图像传感器通常由像敏单元阵列、行驱动器、列驱动器、时序控制逻辑、AD转换器、数据总线输出接口、控制接口等几部分组成, 这几部分通常都被集成在同一块硅片上。
 其工作过程一般可分为复位、光电转换、积分、读出几部分。  
 索尼在2012年推出了全球首款用于消费电子产品的堆叠芯片CIS相机系统（CIS+ISP）。
-在2017年的ISSCC大会上，索尼又发布了他们的一款三层堆栈式CIS。\parencite{sony2017} %引用
+在2017年的ISSCC大会上，索尼又发布了他们的一款三层堆栈式CIS\parencite{sony2017}。 %引用 
 其结构为：顶层的图像感知层、中间的DRAM层和底层的逻辑电路层（CIS+DRAM+ISP）。
 堆栈式CIS芯片成为了发展趋势。
 随着各厂商的设计能力与工艺的提升，越来越多的IP被集成到CIS芯片的堆栈中，使得现今的CIS芯片功能更加强大和复杂。
@@ -35,7 +35,7 @@ CMOS图像传感器通常由像敏单元阵列、行驱动器、列驱动器、�
 %引用 Y. LeCun, L. Bottou, Y. Bengio, and P. Haffner, “Gradient-Based Learning Applied to Document Recognition,” Proceedings of the IEEE, vol. 86, no. 11, pp. 2278– 2324, 1998.
 %引用 Deep Learning, by Yann L., Yoshua B. & Geoffrey H. (2015) 
 它们都属于多层感知器(MLPs)家族，可能包括四种类型的层:卷积层、池化层、归一化层和分类器层\parencite{NN1998}。%引用
-% 引用  S. Haykin, Neural Networks: A Comprehensive Foundation, 2nd ed. Upper Saddle River, NJ, USA: Prentice Hall PTR, 1998.
+%引用  S. Haykin, Neural Networks: A Comprehensive Foundation, 2nd ed. Upper Saddle River, NJ, USA: Prentice Hall PTR, 1998.
 回顾深度学习算法的发展史,始于LeNet识别了10个手写的数字。
 它是一种广泛用于文档识别的卷积神经网络，由两个卷积层、两个池层和三个分类器层组成。
 卷积层实际上是一种滤波器。它可以用来识别输入的特征图的某些特征。
@@ -47,7 +47,7 @@ CMOS图像传感器通常由像敏单元阵列、行驱动器、列驱动器、�
 2012年多伦多大学的Geoffrey Hinton的课题组首次参加ImageNet图像识别比赛，就通过其构建的卷积神经网络AlexNet\cite{alexnet2012}一举夺得冠军。
 他们的成绩大幅超出了第二名（一种SVM）的分类性能。
 这使得AlexNet成为近年的一个里程碑。
-%引用  Krizhevsky A, Sutskever I, Hinton G E. Imagenet classification with deep convolutional neural networks[C]//Advances in neural information processing systems. 2012: 1097-1105.
+%引用 Krizhevsky A, Sutskever I, Hinton G E. Imagenet classification with deep convolutional neural networks[C]//Advances in neural information processing systems. 2012: 1097-1105.
 
 
 % 简述ResNet
@@ -55,7 +55,7 @@ CMOS图像传感器通常由像敏单元阵列、行驱动器、列驱动器、�
 近几年的ImageNet比赛中，网络的深度越来越深。
 随着网络的加深，产生了梯度消失或者梯度爆炸的问题，导致训练的准确率下降的现象。
 这种现象并不是由过拟合导致的，因为过拟合的现象发生时，训练的准确率会表现得非常高。
-针对这个问题何恺明博士在2015年提出的ResNet很好地解决了这个问题，并在2015年的ImageNet比赛上获得了第一名\parencite{resnet2015}。
+针对这个问题何恺明博士在2015年提出的ResNet\parencite{resnet2015}很好地解决了这个问题，并在2015年的ImageNet比赛上获得了第一名。
 % 引用
 ResNet18由4个主要的残差层组成。
 整个网络的开头，由7x7的卷积核做卷积运算和3x3的最大池化。
@@ -85,12 +85,12 @@ ResNet可能使用两种不同的残差单元。一种是BasicBlock，用于ResN
 
 感知时代始于2012年。之后谷歌在几千台普通机器上进行了出色的并行CPU有损更新研究。
 在这之后的2014年，VGGNet与GoogLenet相继诞生，专为神经网络设计的硬件在90年代初诞生。
-CNAPS（1990），它带有64个处理单元和256kB内存，可以在8/16位条件下达到1.6 GCPS的速度（CPS是指每秒连接次数 / connections per second）或在1位条件下达到12.8GCPS的速度。\cite{Heemskerk1995OverviewON}
-%\cite{ref1}    Overview of neural hardware
+CNAPS（1990），它带有64个处理单元和256kB内存，可以在8/16位条件下达到1.6 GCPS的速度（CPS是指每秒连接次数 / connections per second）或在1位条件下达到12.8GCPS的速度\cite{Heemskerk1995OverviewON}。
+%引用   Overview of neural hardware
 
 随着大数据和深度学习的发展，用于相关领域的硬件发展趋势也受到业内人士以及专家们的广泛关注。
 在半导体领域，2019 ISSCC大会于2月17—21日在美国旧金山开幕。
-Facebook首席AI科学家Yann LeCun在会上发表了主题演讲”深度学习硬件：过去、现在和未来“，详细介绍了深度学习研究的发展将如何影响未来硬件架构。\cite{Yann2019DeepLH}
+Facebook首席AI科学家Yann LeCun在会上发表了主题演讲”深度学习硬件：过去、现在和未来“，详细介绍了深度学习研究的发展将如何影响未来硬件架构\cite{Yann2019DeepLH}。
 %引用  ISSCC 2019 Deep Learning Hardware: Past, Present, and Future
 
 
@@ -145,14 +145,14 @@ ASIC作为一种专用的硬件加速方案，在性能和功耗，特别是能�
 另外，加速器本身处在数据通路中，将会进一步减少为了读取输入数据和写入输出数据而进行的DRAM访问。   
 
 与机器学习或深度学习相关的边缘计算领域也在今年得到了长足的发展。
-例如：由Pete Warden 与 Daniel Situnayake在2019年提出的TinyML就是在毫瓦功率的微处理器上，实现机器学习算法、工具和技术。
+例如：由Pete Warden 与 Daniel Situnayake在2019年提出的TinyML就是在毫瓦功率的微处理器上，实现机器学习算法、工具和技术\cite{tinyml2019}。
 %引用  TinyML
 这一技术是基于Tensorflow Lite在微控器上的软件框架和硬件环境而来的。
 一般来说，它只需要几十千字节的存储空间。  
 
 在CIS的领域，物联网中的感知节点数量持续快速增长，产生海量数据。
-到2032年，从感官节点产生的信息相当于1020bit/s，远大于人类感官总吞吐量。
-%引用
+到2032年，从感官节点产生的信息相当于1020bit/s，远大于人类感官总吞吐量\cite{2020Near}。
+%引用  Near-Sensor and In-Sensor Computing
 尽管5G网络或是将来的6G网络会为物联网提供高速传输和大带宽。
 因此，近传感器和传感器内计算范式的概念被提了出来。
 通过它们在传感器和运算单元之间的位置来定义它们输入哪一种类型。
@@ -165,11 +165,11 @@ ASIC作为一种专用的硬件加速方案，在性能和功耗，特别是能�
 几乎所有市场上旗舰手机的SoC都嵌入了NPU。
 由于各家厂商嵌入在SoC中的NPU各不相同，因此性能和功耗也是天差地别。
 各个厂家也是对这个新ip讳莫如深。
-公开可查到的有谷歌TPU和寒武纪的Diannao系列。
+公开可查到的有谷歌TPU\cite{2017In}和寒武纪的Diannao\cite{2014DianNao}系列。
 它们的设计思想可以作为后续设计的参考。
 当前情况下，寒武纪的Diannao系列显得比谷歌的TPU更开放一些。
-寒武纪开放了其指令集Cambricon和相应的工具链或者是云服务。
-同时，寒武纪的Diannao系列作品的论文也非常完整，特别是ShiDianNao对本课题有非常大的借鉴意义。
+寒武纪开放了其指令集Cambricon\cite{2016Cambricon}和相应的工具链或者是云服务。
+同时，寒武纪的Diannao系列作品的论文也非常完整，特别是ShiDianNao\cite{2015ShiDianNao}对本课题有非常大的借鉴意义。
 谷歌TPU方面，我们只能通过Google Colab服务来使用云端的TPUs。
 在最新款的谷歌手机上，名为Google Tensor的SoC芯片内置了Google edge TPU来加强机器学习的运算能力。
 但谷歌没有开放相关的SDK，因此可以相信这个TPU只是给设备原生的一些应用使用的。
@@ -188,7 +188,7 @@ DianNao是在2014年寒武纪深度学习处理器的开山之作。
 % ShiDianNao的整体架构贴图。
 % ShiDianNao的DL加速单元架构描述。
 % 上述架构的贴图
-ShiDianNao是一个放置在CMOS或CCD传感器旁的CNN加速器。
+ShiDianNao是一个放置在CMOS或CCD传感器旁的CNN加速器\cite{2015ShiDianNao}。
 它有特定的数据访问模式来避免DRAM的读写访问。
 这是的ShiDianNao具有以前最先进的神经网络加速器的60倍的能效比。
 它在65纳米的布局下，面积为4.86 $mm^2$，功耗仅为320 mW，但仍然比高端GPU快30倍。
@@ -199,7 +199,7 @@ ShiDianNao是一个放置在CMOS或CCD传感器旁的CNN加速器。
     \caption{ShiDianNao的架构图}
     \label{fig:shidiannao_arch}
 \end{figure}
-ShiDianNao的架构设计如图\ref{fig:shidiannao_arch}所示，在整个SoC上类似于一个挂载在总线上的外设。
+ShiDianNao的架构设计如图\ref{fig:shidiannao_arch}所示\cite{2015ShiDianNao}，在整个SoC上类似于一个挂载在总线上的外设。
 加速器有两个功能单元，一个NFU用于调节基本神经元操作（乘法、加法和比较），另一个ALU用于执行激活函数计算。
 它的核心模块是NFU（神经功能单元）。
 NFU是由$P_x$×$P_y$个处理元素（PE）组成的2D网络。
@@ -211,33 +211,50 @@ NFU不能覆盖CNN中的所有计算原语，因此ShiDianNao需要一个轻量�
 ALU实现了16位定点算术运算符，包括除法（用于平均池化和归一化层）和非线性激活函数，如tanh()和sigmoid()（用于卷积层和池化层）。
 
 
-\paragraph{存储器的选择}
+\paragraph{存储与运算}
 %TODO 关于存储Multiple Bank的设计（状态机）
 % 11/24 这一段需要重写
-DRAM和SRAM
+在设计嵌入式的深度学习加速器时，无论是系统级使用的存储或者是模块中的缓冲，都要选择合适的存储介质。
+在片内运算时所使用的存储，都要选择SRAM，而需要大量存储的静态数据可以放在DRAM中。
+一般的，SRAM的读写速度和功耗，都远小于DRAM。
+但是SRAM的成本很高。下面是一些比较现今的新型存储。  
+
+除了存储介质的不同外，还可以根据存储与运算的架构设计分类，来区分不同的存储类型。
+以这种方式，主要可以分为以下三类：
+\begin{enumerate}
+    \item 近存运算
+    \item 存内运算
+    \item 传感器内运算
+\end{enumerate}   
+
+
+\subparagraph{近存运算}
+
+
 先进的存储技术可以降低高密度存储器（如DRAM）的访问能量。
-例如，嵌入式DRAM（eDRAM）在芯片上提供高密度存储器，以避免关闭芯片电容的高能耗成本[97]；eDRAM的密度比SRAM高2.85倍，能效比DRAM高321倍（DDR3）[93]。
-与DRAM相比，eDRAM还提供了更高的带宽和更低的延迟。在DNN处理中，eDRAM可用于在芯片上存储数十兆字节的权重和激活，以避免芯片外访问，如DaDianNao[93]所示。
+例如，嵌入式DRAM（eDRAM）\cite{2001Embedded}在芯片上提供高密度存储器，以避免关闭芯片电容的高能耗成本；eDRAM的密度比SRAM高2.85倍，能效比DRAM高321倍（DDR3）\cite{2017Efficient}。
+与DRAM相比，eDRAM还提供了更高的带宽和更低的延迟。在DNN处理中，eDRAM可用于在芯片上存储数十兆字节的权重和激活，以避免芯片外访问，如DaDianNao\cite{2015DaDianNao}所示。
 eDRAM的缺点是其密度低于片外DRAM，并且会增加芯片成本。
-DRAM也可以使用硅通孔（TSV）堆叠在芯片顶部，而不是将DRAM集成到芯片本身。
-这项技术通常被称为三维存储器，并已以混合存储立方体（HMC）[98]和高带宽存储器（HBM）[99]的形式商业化。
-3-D内存提供了一个数量级的更高带宽，并且相对于现有的2-D DRAM，访问能量减少了5倍，因为TSV的电容低于典型的片外互连。
-最近的工作探索了使用HMC以多种方式高效处理DNN。例如，Neurocube[100]将SIMD处理器集成到HMC的逻辑芯片中，使内存和计算更紧密地结合在一起。
-Tetris[101]探讨了HMC与Eyeris空间架构和行固定数据流的结合使用。
-它建议分配比片上存储器更多的计算区域（即更大的PE阵列和更小的全局缓冲区），以利用HMC的低能量和高吞吐量特性。它还调整数据流，以考虑HMC内存和更小的片上内存。
-Tetris在使用传统2-D DRAM的基线系统上实现了1.5倍的能耗降低和4.1倍的吞吐量增加。
+DRAM也可以使用硅通孔（TSV）\cite{2018The}堆叠在芯片顶部，而不是将DRAM集成到芯片本身。
+这项技术通常被称为三维存储器，并已以混合存储立方体（HMC）\cite{2012Hybrid}和高带宽存储器（HBM）\cite{HBMDRAM}的形式商业化。
+3-D内存提供了一个数量级的更高带宽，并且相对于现有的2-D DRAM，访问能量减少了5倍，因为TSV的电容低于典型的片外互连\cite{2017Efficient}。
 
-SRAM不是将内存放在计算附近，而是将计算放在内存中。
-例如，乘法和累积操作可以直接集成到SRAM阵列的位单元中[102]，如图36（a）所示。
-在这项工作中，使用5位DAC将字线（WL）驱动到表示特征向量的模拟电压，而位单元存储二进制权重±1。
-比特单元电流（IBC）实际上是特征向量的值和存储在比特单元中的权重的值的乘积；来自列中位单元的电流加在一起对位线（VBL）放电。
-与从SRAM读取1位权重并单独执行计算相比，该方法可节省12倍的能量。
-为了对抗电路的非理想性，DAC考虑了关于WL电压的非线性位线放电，并使用升压来组合易受设备变化影响的弱分类器，以形成强分类器[103]。
+\subparagraph{存内运算}
+% 这段重写
+存内处理与传统架构之间有很大的差异。
+DNN处理可以使用矩阵向量乘法执行，
+对于传统架构，输入激活向量和权重矩阵都从各自的存储器中读出，并由乘累加阵列处理。
+一次可以读取的权重数量受内存接口的限制（例如，读取逻辑和内存端口的数量）。
+权重的有限内存带宽也可以限制可并行执行的乘加运算操作的数量（即每个周期的操作），从而限制总吞吐量。
+存内运算的架构是将计算移动到存储权重矩阵的内存中进行的；
+这可以通过避免读取权重矩阵的成本来帮助减少权重的数据移动；
+只从内存中读取计算结果，如部分和或最终输出激活，而不是读取权重；
+此外，存内运算架构中的处理还可以增加内存带宽，因为可以并行访问的权重数量不再受内存接口的限制；
+理论上，整个权重矩阵可以并行读取和处理\cite{2017Efficient}。  
 
-非易失性电阻存储器
-乘法和累积操作也可以直接集成到高级非易失性高密度存储器中，方法是将其用作可编程电阻元件，通常称为忆阻器[105]。
-具体地，如图36（b）所示，以电阻器的电导作为权重，以电压作为输入，以电流作为输出，执行乘法。
-加法是通过将不同忆阻器的电流与基尔霍夫电流定律相加来完成的。这是权重固定数据流的最终形式，因为权重始终保持在适当的位置。
+%这段减少，另加入SRAM和DRAM的存内运算内容
+有一种叫做非易失性电阻存储器的存储介质，非常适合做存内运算。
+将乘累加运算直接集成到高级非易失性高密度存储器中，并将其用作可编程电阻元件。我们称这种元件为忆阻器\cite{IEEE1971L}。
 这种方法的优点包括：由于计算被嵌入内存中，从而减少了数据移动，因此降低了能耗；由于内存和计算可以以与DRAM类似的密度进行密集封装，因此增加了密度[106]。
 非易失性电阻存储器器件有几种常见的候选器件，包括相变存储器（PCM）、电阻RAM（RRAM或ReRAM）、导电桥RAM（CBRAM）和自旋转移转矩磁RAM（STT-MRAM）[107]。
 这些设备在耐久性（即可以写入多少次）、保留时间、写入电流、密度（即单元大小）、变化和速度方面有不同的权衡。
@@ -246,6 +263,10 @@ SRAM不是将内存放在计算附近，而是将计算放在内存中。
 第二，阵列尺寸受到连接电阻器件的导线的限制；具体而言，对于大型阵列（例如1k×1k），导线能量占主导地位，并且沿导线的红外压降会降低读取精度。
 第三，对电阻器件进行编程的写入能量可能非常昂贵，在某些情况下需要多个脉冲。
 最后，电阻器件还可能受到器件间和周期间变化的影响，在整个电导范围内具有非线性电导。
+
+
+\subparagraph{传感器内运算}
+%这段新增
 
 
 \subsubsection{谷歌TPU的脉动阵列}
@@ -267,11 +288,11 @@ TPU拥有4级流水线。同时设计了一组指令来控制访存和运算。�
     \item Write\_Host\_Memory
 \end{enumerate}
 设计遵循了解耦访问和执行的原则。
-因此在发出Read\_Weights指令之后，MatrixMultiply就可以开始执行，不需要等待Read\_Weights指令完成。
+因此在发出Read\_Weights指令之后，MatrixMultiply指令就可以开始执行，不需要等待Read\_Weights指令完成。
 如果Read\_Weights/Activation没有准备好，矩阵乘法单元就会停止。
 
 \paragraph{脉动阵列}
-脉动阵列是1978年KUNG H T提出的一种应用在片上多处理器的体系结构。
+脉动阵列\cite{1978Systolic}是1978年KUNG H T提出的一种应用在片上多处理器的体系结构。
 它是由多个相同的、结构简单的计算单元以网状形式连接而成的，具有并行性、规律性和局部通信的特征。
 %REF KUNG H T, Leiserson C E. Systolic arrays(for VLSI)[C]. Sparse Matrix Proceedings 1978, Society for Industrial and Applied Mathematics, 1979.
 脉动一词来源于心血管。
@@ -291,14 +312,14 @@ TPU拥有4级流水线。同时设计了一组指令来控制访存和运算。�
 它非常适合用于如矩阵运算，卷积等等数据流具有一定规律的算法。  
 
 \paragraph{脉动阵列上的卷积运算}
-上面两个小节已经分别描述了谷歌TPU的架构和普通的脉动阵列做乘加运算的过程。
+上面两个小节已经分别描述了谷歌TPU\cite{2017In}的架构和普通的脉动阵列做乘加运算的过程。
 但是在本课题中需要做的是卷积运算，与矩阵的乘加运算是有区别的。
 这一小节将描述谷歌TPU是如何基于脉动阵列执行卷积运算的。
-谷歌TPU在进行卷积运算时，会把卷积运算转化为二维矩阵乘法。
+谷歌TPU\cite{2017In}在进行卷积运算时，会把卷积运算转化为二维矩阵乘法。
 神经网络处理器会把激活输入和权重输入放到矩阵的行和列中。
 激活值和权重在脉动阵列中向右和向下传播（从矩阵左边和上边输入），直到到达指定的运算单元的指定寄存器中。
 一旦运算单元中的输入数据都放好，通过控制信号，处理器就会将输入数据经过计算得到输出数据。
-这里举一个在谷歌TPU中5x5的激活输入使用3x3的卷积核做卷积的例子，这个输入是170x170大小原图的一部分。
+这里举一个在谷歌TPU中5x5的激活输入使用3x3的卷积核做卷积的例子，这个输入是170x170大小原图的一部分\cite{2017Rotating}。
 如图\ref{fig:activation_and_kernel}是输入的激活和卷积核。
 \begin{figure}[htbp]
     \centering
@@ -316,7 +337,7 @@ TPU拥有4级流水线。同时设计了一组指令来控制访存和运算。�
     \label{fig:vector_inputs}
 \end{figure} 
 
-在送入输入数据之前，处理器会执行“旋转卷积核”的操作。
+在送入输入数据之前，处理器会执行“旋转卷积核”\cite{2017Rotating}的操作。
 具体对3x3的卷积核做“旋转”的操作后，得到下图\ref{fig:rotated_kernel}中的结果。
 \begin{figure}[htbp]
     \centering
@@ -397,9 +418,9 @@ FPGA设备非常昂贵单台设备的价值可能是数万至数十万元人民�
 
 \paragraph{SystemC}
 在建模的过程中将会采用SystemC作为建模的语言。
-SystemC既是系统级语言，也是硬件描述语言。
+SystemC既是系统级语言，也是硬件描述语言\cite{2008SystemC}。
 %引用《SystemC入门》（第二版）
-SystemC 由 C++发展而来，是优秀的系统级描述语言，SystemC 单元库结构如图\ref{fig:systemc_libs}所示，它使软硬件工程师可以在统一的环境下同时描述软硬件结构和接口， 它将通信与功能分开，能提供更高设计效率，将集成电路设计引入事务级，提供 更有效的设计流程，从而帮助解决集成电路产业面临的各种问题，从此可以预见 SystemC 的光明前景。
+SystemC 由 C++发展而来，是优秀的系统级描述语言，SystemC 单元库结构如图\ref{fig:systemc_libs}所示，它使软硬件工程师可以在统一的环境下同时描述软硬件结构和接口， 它将通信与功能分开，能提供更高设计效率，将集成电路设计引入事务级，提供 更有效的设计流程，从而帮助解决集成电路产业面临的各种问题，从此可以预见 SystemC 的光明前景\cite{SWZ20131553B}。
 % 引用 单中伟. 1553B 总线远程终端的 FPGA 程序设计[J]. 现代电子技术, 2013(09): 28-30.
 
 \begin{figure}[htbp]
@@ -408,7 +429,7 @@ SystemC 由 C++发展而来，是优秀的系统级描述语言，SystemC 单元
     \caption{SystemC单元库}
     \label{fig:systemc_libs}
 \end{figure} 
-传统的硬件设计使用如 Verilog HDL 或者 VHDL 等硬 件描述语言，而软件设计则使用不同的语言，所以在进行软硬件协同验证时比较 困难,并且软件的设计往往要迟于硬件系统证成为制约设计效率的主要因素为提高 工作效率，人们引进了 SystemC 语言，使得在运用 SystemC 对硬件进行建模时， 可以在一开始就能够同时进行软硬件的设计，这是传统的 SoC 设计所比不了的。
+传统的硬件设计使用如 Verilog HDL 或者 VHDL 等硬 件描述语言，而软件设计则使用不同的语言，所以在进行软硬件协同验证时比较 困难,并且软件的设计往往要迟于硬件系统证成为制约设计效率的主要因素为提高 工作效率，人们引进了 SystemC 语言，使得在运用 SystemC 对硬件进行建模时， 可以在一开始就能够同时进行软硬件的设计，这是传统的 SoC 设计所比不了的\cite{2010Real}。
 %引用 Zhao Changyu, Yan Changxiang, Yu Ping. Real time scheduling of messages on 1553B bus[J]. Optics and Precision Engineering, 2010, 18(3): 732-40.
 在下文的“建模和验证”章节，将使用SystemC作为实现本文设计的建模语言，实现系统级建模和算法的仿效。
 
@@ -425,6 +446,6 @@ SystemC 由 C++发展而来，是优秀的系统级描述语言，SystemC 单元
 这种设计实践了“软件定义硬件”的新概念。
 其设计和建模过程本身就是一种方法学的探索。
 在进行芯片的设计时，系统级建模和算法验证是其中的关键部分。
-本文通过构建CIS芯片上的深度学习神经网络加速器的系统级模型，将需要处理的诸多硬件信号作为抽象数据类型进行操作，忽略RTL管脚的通信细节，通过调用相应函数来进行模块之间的通信，提高仿真的速度。
+本文通过构建CIS芯片上的深度学习神经网络加速器的系统级模型，将需要处理的诸多硬件信号作为抽象数据类型进行操作，忽略RTL管脚的通信细节，通过调用相应函数来进行模块之间的通信，提高仿真的速度\cite{2007ESL}。
 %引用  Weijers J.W, Glassee M, Schuster T. ESL design and HW/SW co-verification of high-end Software Defined Radio platforms[C]. Hardware/Software Codesign and System Synthesis (CODES+ISSS), 2007 5th IEEE/ACM/IFIP International Conference, Salzburg, 2007: 191-196.
 在充分描述系统控制逻辑和算法后，通过SystemC来实现建模的工作。
